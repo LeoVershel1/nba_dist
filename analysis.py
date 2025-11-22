@@ -48,7 +48,7 @@ def create_BTY_dataframe(csv_file):
         csv_file: Path to the CSV file containing distance matrix
         
     Returns:
-        DataFrame with columns: team, average_distance, yearly_road_trip
+        DataFrame with columns: team, average_distance, average_yearly_road_trip
     """
     average_distances = calculate_average_distances(csv_file)
     
@@ -56,7 +56,7 @@ def create_BTY_dataframe(csv_file):
     BTY_data = pd.DataFrame({
         'team': list(average_distances.keys()),
         'average_distance': list(average_distances.values()),
-        'yearly_road_trip': [dist * 41 for dist in average_distances.values()]
+        'average_yearly_road_trip': [dist * 41 for dist in average_distances.values()]
     })
     
     return BTY_data
