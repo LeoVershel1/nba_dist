@@ -43,6 +43,63 @@ def calculate_cumulative_burden(schedule):
     return np.array(game_numbers), np.array(cumulative_burdens)
 
 
+def calculate_cumulative_burden_with_metadata(schedule):
+    """
+    Calculate cumulative burden for each game in a team's schedule, including game metadata.
+    
+    Args:
+        schedule: List of game dictionaries from schedulizer
+        
+    Returns:
+        Tuple of (game_numbers, cumulative_burdens, game_datetimes, locations, opponents) 
+        where all are lists/arrays
+    """
+    if schedule is None:
+        return None, None, None, None, None
+    
+    game_numbers = []
+    cumulative_burdens = []
+    game_datetimes = []
+    locations = []
+    opponents = []
+    running_total = 0.0
+    
+    for game in schedule:
+        game_index = game['gameindex']
+        burden = game['game_mile_hours_burden']
+        
+        # Skip first game (burden is None)
+        if burden is not None:
+            running_total += burden
+        
+        game_numbers.append(game_index)
+        cumulative_burdens.append(running_total)
+        
+        # Extract metadata
+        game_dt = game.get('game_datetime')
+        if game_dt:
+            # Format datetime nicely
+            if isinstance(game_dt, str):
+                game_datetimes.append(game_dt)
+            else:
+                # Format as "Oct 22, 2024 7:30 PM"
+                game_datetimes.append(game_dt.strftime('%b %d, %Y %I:%M %p').replace(' 0', ' '))
+        else:
+            game_datetimes.append('N/A')
+        
+        # Format location (capitalize first letter)
+        location = game.get('location', 'N/A')
+        if location and location != 'N/A':
+            locations.append(location.capitalize())
+        else:
+            locations.append('N/A')
+        
+        opponents.append(game.get('opponent', 'N/A'))
+    
+    return (np.array(game_numbers), np.array(cumulative_burdens), 
+            game_datetimes, locations, opponents)
+
+
 def plot_team_burden(team_name, schedule_mapping=None, 
                      regular_season_data='nba_reg_szn_24-25_scraped.csv',
                      stadium_distance_data='nba_stadium_distances.csv',

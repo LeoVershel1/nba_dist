@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import numpy as np
 from metrics import create_schedule_mapping, get_team_schedule, get_all_teams
-from visualize_burden import calculate_cumulative_burden
+from visualize_burden import calculate_cumulative_burden, calculate_cumulative_burden_with_metadata
 
 # Configure page
 st.set_page_config(
@@ -165,27 +165,39 @@ def main():
                 st.warning(f"Could not load schedule for {team}")
                 continue
             
-            # Calculate cumulative burden
-            game_numbers, cumulative_burdens = calculate_cumulative_burden(schedule)
+            # Calculate cumulative burden with metadata
+            result = calculate_cumulative_burden_with_metadata(schedule)
             
-            if game_numbers is None or len(game_numbers) == 0:
+            if result[0] is None or len(result[0]) == 0:
                 st.warning(f"Could not calculate burden for {team}")
                 continue
+            
+            game_numbers, cumulative_burdens, game_datetimes, locations, opponents = result
             
             # Get team color
             team_color = TEAM_COLORS.get(team, "#808080")  # Default to gray if not found
             
-            # Add trace for this team
+            # Prepare custom data for hover template
+            # We'll pass metadata as a 2D array where each row contains [datetime, location, opponent]
+            custom_data = np.column_stack([game_datetimes, locations, opponents])
+            
+            # Add trace for this team with enhanced hover template
             fig.add_trace(go.Scatter(
                 x=game_numbers,
                 y=cumulative_burdens,
                 mode='lines',
                 name=team,
                 line=dict(color=team_color, width=2.5),
-                hovertemplate=f'<b>{team}</b><br>' +
-                             'Game: %{x}<br>' +
-                             'Cumulative Burden: %{y:.2f}<br>' +
-                             '<extra></extra>'
+                customdata=custom_data,
+                hovertemplate=(
+                    f'<b>{team}</b><br>' +
+                    'Game: %{x}<br>' +
+                    'Date/Time: %{customdata[0]}<br>' +
+                    'Location: %{customdata[1]}<br>' +
+                    'Opponent: %{customdata[2]}<br>' +
+                    'Cumulative Burden: %{y:.2f}' +
+                    '<extra></extra>'
+                )
             ))
         
         # Update layout

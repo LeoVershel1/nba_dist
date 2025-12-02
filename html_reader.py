@@ -138,10 +138,11 @@ def parse_date_header(date_text):
     date_match = re.match(r'(\w+)\s+(\w+)\s+(\d+)', date_text.strip())
     if date_match:
         day_name, month_name, day = date_match.groups()
-        # Infer year: Oct-Dec 2024, Jan-Apr 2025
+        # Infer year: Oct-Dec 2025, Jan-Apr 2026 (actual current season)
         month_num = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
                     'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}.get(month_name, 1)
-        year = 2024 if month_num >= 10 else 2025
+        # Use actual years from the website: Oct-Dec 2025, Jan-Apr 2026
+        year = 2025 if month_num >= 10 else 2026
         return f"{day_name}, {month_name} {day}, {year}"
     return None
 
