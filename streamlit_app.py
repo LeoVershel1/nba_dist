@@ -101,8 +101,8 @@ TEAM_COLORS = {
 # Cache the schedule mapping to avoid reloading on every interaction
 @st.cache(allow_output_mutation=True)
 def load_schedule_data():
-    """Load schedule mapping for all teams."""
-    return create_schedule_mapping()
+    """Load schedule mapping for all teams using the scraped data."""
+    return create_schedule_mapping(regular_season_data='nba_reg_szn_24-25_scraped.csv')
 
 
 def main():
